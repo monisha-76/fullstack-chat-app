@@ -18,12 +18,25 @@ const __dirname = path.resolve();
 
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
+
+const allowedOrigins = [
+  "http://localhost:5173",                                // Local frontend
+  "https://fullstack-chat-app-delta-six.vercel.app"       // Deployed frontend (Vercel)
+];
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
+
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
